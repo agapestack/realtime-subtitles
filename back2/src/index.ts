@@ -3,16 +3,16 @@ import express = require("express");
 import cors = require("cors");
 import morgan = require("morgan");
 import WebSocket = require("ws");
-import { translateText } from "./translation/gcl.translate";
+// import { translateText } from "./translation/gcl.translate";
 
 // TEST
-const text = `
-Il a recommencé et recommencé. Pratiquement tous les ordinateurs existants furent sous son contrôle. Il ne laissait pas de trace, ne se montrait pas. Et puis, il a découvert les dialogues en direct via Internet, le téléphone, la visio-conférence, la domotique...
+// const text = `
+// Il a recommencé et recommencé. Pratiquement tous les ordinateurs existants furent sous son contrôle. Il ne laissait pas de trace, ne se montrait pas. Et puis, il a découvert les dialogues en direct via Internet, le téléphone, la visio-conférence, la domotique...
 
-Le général sorti un badge et se dirigea vers l’une des portes entourées de peinture jaune. Il glissa le badge dans la fente située à droite. La porte s’ouvrit. Une dizaine de militaires armées jusqu’aux dents étaient postés derrière.`;
-const target = ["en", "ru"];
+// Le général sorti un badge et se dirigea vers l’une des portes entourées de peinture jaune. Il glissa le badge dans la fente située à droite. La porte s’ouvrit. Une dizaine de militaires armées jusqu’aux dents étaient postés derrière.`;
+// const target = ["en", "ru"];
 
-translateText(text, target);
+// translateText(text, target);
 
 // Config
 const PORT = process.env.PORT || 4444;

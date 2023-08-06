@@ -1,0 +1,14 @@
+version: '3.0'
+
+services:
+  realtime_front:
+   build: front
+   container_name: realtime_front
+   ports:
+    - "3000:3000"
+
+  realtime_back:
+   build: back
+   container_name: realtime_back
+   ports:
+    - "4444:4444"

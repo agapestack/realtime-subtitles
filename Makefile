@@ -1,35 +1,39 @@
 SHELL := /bin/bash # Use bash syntax
-GREEN  := $(shell tput -Txterm setaf 2)
-YELLOW := $(shell tput -Txterm setaf 3)
-WHITE  := $(shell tput -Txterm setaf 7)
-CYAN   := $(shell tput -Txterm setaf 6)
-RESET  := $(shell tput -Txterm sgr0)
 
 SERVER_DIR="back"
 SERVER_PORT=4444
 CLIENT_DIR="front"
+COMPOSE_DEV="docker-compose.dev.yml"
 
-.PHONY: build-back start-back loop-back clean build-front start-front loop-front install-back install-front install
+.PHONY: build-back start-back loop-back clean build-front start-front loop-front install-back install-front install build-docker-front run-compose-dev stop-compose-dev build-docker-back install-compose-dev
 
 all: help
 
 ## GLOBAL MACRO
-install: install-babck install-front # install
 
-install-back: ## install-back
-	cd ${SERVER_DIR}; npm i
+
+build-docker-front:  ## build-docker-front
+	docker build -f ${CLIENT_DIR}/Dockerfile -t realtime_front .
+
+build-docker-back: ## build-docker-back
+	docker build -f ${SERVER_DIR}/Dockerfile -t realtime_back .
+
+build-compose-dev: ## run and force build docker-compose.dev.yml
+	docker compose -f ${COMPOSE_DEV} up -d --build
+
+run-compose-dev: ## run docker-compose.dev.yml
+	docker compose -f ${COMPOSE_DEV} up -d
+
+stop-compose-dev: ## stop docker-compose.dev.yml
+	docker compose -f ${COMPOSE_DEV} down
+
+install: install-back install-front # install
 
 install-front: ## install-front
 	cd ${CLIENT_DIR}; npm i
 
-build-back: ## build-back
-	cd ${SERVER_DIR}; npm run build
-
-start-back: build-back ## start-back
-	cd ${SERVER_DIR}; npm run start
-
-loop-back: ## loop-back
-	cd ${SERVER_DIR}; npm run loop
+start-back: ## start-back
+	cd ${SERVER_DIR}; uvicorn main:app --port 4444 --reload
 
 build-front: ## build-front
 	cd ${CLIENT_DIR}; npm run build
