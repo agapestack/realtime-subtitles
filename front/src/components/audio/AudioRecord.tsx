@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useWebSocket } from "../../context/WebSocketContext";
-
-const AUDIO_TIMESLICE = 1000; // time in ms between audio record
+import { AUDIO_TIMESLICE } from "../../config/config";
 
 const AudioRecord = () => {
   const { ws } = useWebSocket();
+  const [isCaptureEnable, setIsCaptureEnable] = useState<boolean>(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
-    null
-  );
+  const [recorder, setRecorder] = useState<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
 
   const startCapture = async () => {
@@ -33,7 +31,7 @@ const AudioRecord = () => {
           }
         }
       };
-      setMediaRecorder(recorder);
+      setRecorder(recorder);
       recorder.start();
     } catch (error) {
       console.error("Error accessing microphone:", error);
@@ -47,26 +45,36 @@ const AudioRecord = () => {
     }
   };
 
-  // MICROPHONE AUDIO CAPTURE
   useEffect(() => {
-    startCapture();
+    if (isCaptureEnable) {
+      startCapture();
+    } else {
+      stopCapture();
+    }
+  }, [isCaptureEnable]);
 
-    const intervalId = setInterval(() => {
-      console.log(mediaRecorder);
-      if (mediaRecorder && stream) {
-        mediaRecorder.stop();
-        mediaRecorder.start();
+  // // MICROPHONE AUDIO CAPTURE
+  const toggleCapture = () => {
+    setIsCaptureEnable(!isCaptureEnable);
+  };
+
+  useEffect(() => {
+    const captureInterval = setInterval(() => {
+      if (recorder && stream) {
+        recorder.requestData();
       }
     }, AUDIO_TIMESLICE);
     return () => {
-      clearInterval(intervalId);
-      stopCapture();
+      clearInterval(captureInterval);
     };
-  }, [mediaRecorder]);
+  }, [stream]);
 
   return (
     <div>
       <h1>Audio Record</h1>
+      <button onClick={toggleCapture}>
+        {isCaptureEnable ? "Stop capture" : "Start capture"}
+      </button>
     </div>
   );
 };
