@@ -6,6 +6,7 @@ CYAN   := $(shell tput -Txterm setaf 6)
 RESET  := $(shell tput -Txterm sgr0)
 
 SERVER_DIR="back"
+SERVER_PORT=4444
 CLIENT_DIR="front"
 
 .PHONY: build-back start-back loop-back clean build-front start-front loop-front install-back install-front install
@@ -28,7 +29,7 @@ start-back: build-back ## start-back
 	cd ${SERVER_DIR}; npm run start
 
 loop-back: ## loop-back
-	cd ${SERVER_DIR}; find . -type f | grep -v node_modules | entr -sc 'npm run start & npm run build'
+	cd ${SERVER_DIR}; npm run loop
 
 build-front: ## build-front
 	cd ${CLIENT_DIR}; npm run build

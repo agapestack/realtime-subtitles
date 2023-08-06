@@ -7,7 +7,6 @@ const AudioRecord = () => {
   const [isCaptureEnable, setIsCaptureEnable] = useState<boolean>(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [recorder, setRecorder] = useState<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
 
   const startCapture = async () => {
     try {
@@ -20,12 +19,11 @@ const AudioRecord = () => {
       // init recorder, getting new audio chunks
       const recorder = new MediaRecorder(userMedia);
       recorder.ondataavailable = (event) => {
-        console.log(event);
         if (event.data.size > 0) {
-          setAudioChunks((prevChunks) => [...prevChunks, event.data]);
           if (ws) {
-            console.log("sending audio chunk...");
-            ws.send(event.data);
+            blobToBase64(event.data).then((data: string) => {
+              ws.send(data);
+            });
           } else {
             console.log("ws not connected");
           }
@@ -53,10 +51,25 @@ const AudioRecord = () => {
     }
   }, [isCaptureEnable]);
 
-  // // MICROPHONE AUDIO CAPTURE
+  // MICROPHONE AUDIO CAPTURE
   const toggleCapture = () => {
     setIsCaptureEnable(!isCaptureEnable);
   };
+
+  // UTILS
+  async function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.onerror = (e) => reject(fileReader.error);
+      fileReader.onloadend = (e) => {
+        const dataUrl = fileReader.result as string;
+        // remove "data:mime/type;base64," prefix from data url
+        const base64 = dataUrl.substring(dataUrl.indexOf(",") + 1);
+        resolve(base64);
+      };
+      fileReader.readAsDataURL(blob);
+    });
+  }
 
   useEffect(() => {
     const captureInterval = setInterval(() => {
